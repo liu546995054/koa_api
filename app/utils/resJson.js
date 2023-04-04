@@ -1,6 +1,6 @@
 // utils/resJson.js
 
-const ResultJson =  {
+const ResultJson = {
     success: (params) => {
         return {
             data: params.data || null, // 返回的数据
@@ -9,10 +9,10 @@ const ResultJson =  {
         }
     },
     fail: (params) => {
-        console.log('////////////////',params.errors)
+        console.log(params)
         return {
             data: params.data || null,
-            msg: params.msg ||params.errors[0].message || '操作失败',
+            msg: params.msg  || '操作失败',
             code: 100,
             error_code: params.errorCode // 返回接口异常信息码
         }
