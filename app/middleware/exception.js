@@ -12,6 +12,7 @@ const catchError = async (ctx, next) => {
         // 开发环境
         const isDev = global.config.service.enviroment === 'dev'
 
+        console.log('exception',error)
         // 在控制台显示未知异常信息：开发环境下，不是HttpException 抛出异常
         if (isDev && !isHttpException) {
             throw error
