@@ -1,4 +1,5 @@
 const fs = require('fs');
+const mime = require('mime-types')
 // 图片文件夹路径
 // const path = require('path');
 // const request = require('request');
@@ -38,9 +39,9 @@ const FileUtils = {
                     reject(eror);
                 } else {
                     if (stats.isFile()) { //是文件
-                        resolve({ isFile: true, filepath, ...stats });
+                        resolve({isFile: true, filepath, ...stats});
                     } else if (stats.isDirectory()) {
-                        resolve({ isFile: false, filepath, ...stats });
+                        resolve({isFile: false, filepath, ...stats});
                     } else {
                         reject(new Error(`未知类型!`));
                     }
@@ -57,17 +58,24 @@ const FileUtils = {
      */
     async readerFile(fileFullPath, encode) {
         return new Promise((resolve, reject) => {
-            fs.readFile(fileFullPath, (err, data) => {
-                if (err) {
-                    console.log(`读取文件:${fileFullPath}内容失败,${err}`);
-                    reject(err);
-                } else if (encode) {
-                    console.log(`读取文件:${fileFullPath}成功！`);
-                    resolve({ code: 200, data: data.toString(encode || 'utf-8') });
-                } else {
-                    resolve({ code: 200, data });
-                }
-            });
+            let file = null
+            file = fs.readFileSync(fileFullPath)
+            if (file) {
+                resolve({code: 200, data:file});
+            } else {
+                reject(new Error('读取失败'));
+            }
+            // fs.readFile(fileFullPath, (err, data) => {
+            //     if (err) {
+            //         console.log(`读取文件:${fileFullPath}内容失败,${err}`);
+            //         reject(err);
+            //     } else if (encode) {
+            //         console.log(`读取文件:${fileFullPath}成功！`);
+            //         resolve({ code: 200, data: data.toString(encode || 'utf-8') });
+            //     } else {
+            //         resolve({ code: 200, data });
+            //     }
+            // });
         });
     },
 
@@ -79,7 +87,6 @@ const FileUtils = {
     async createDir(filepath) {
         return new Promise((resolve, reject) => {
             fs.mkdir(filepath, (err) => {
-                console.log('77777777777777',filepath)
                 if (err) {
                     console.log(`创建文件夹:${filepath}失败！`);
                     reject(err);
@@ -128,7 +135,7 @@ const FileUtils = {
                     reject(err);
                 } else {
                     console.log(`删除文件:${fileFullPath}成功！`);
-                    resolve({ code: 200, path: fileFullPath });
+                    resolve({code: 200, path: fileFullPath});
                 }
             });
         });
@@ -148,9 +155,9 @@ const FileUtils = {
                     reject(err);
                 } else if (content) {
                     console.log(`写入文件:${fileFullPath}成功！`);
-                    resolve({ code: 200, data: data.toString(content || 'utf-8') });
+                    resolve({code: 200, data: data.toString(content || 'utf-8')});
                 } else {
-                    resolve({ code: 200, data });
+                    resolve({code: 200, data});
                 }
             });
         });

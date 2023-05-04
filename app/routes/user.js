@@ -4,6 +4,7 @@ const router = require('koa-router')({
 // User控制器
 const User = require('../controller/user')
 const Upload = require('../controller/upload')
+const mime = require("mime-types");
 const upload = new Upload()
 router.get('/users', User.selectAll);
 router.post('/register', User.addUser);
@@ -20,6 +21,13 @@ router.get('/getFiles', async(ctx) => {
     // console.log(ctx);
     // console.log(ctx.request.body);return
     ctx.body = await upload.getFiles({ query: ctx.request.query });
+});
+
+router.get('/readFile', async(ctx) => {
+    // console.log(ctx.request.body);return
+    let mimeType = mime.lookup(ctx.request.query.filePath)
+    ctx.set('content-type', mimeType)
+    ctx.body = await upload.readeFileContent({ filePath: ctx.request.query.filePath});
 });
 
 

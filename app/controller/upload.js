@@ -23,7 +23,7 @@ const Sequelize = require('sequelize')
 const sequelize = require('../db')
 module.exports = class {
     constructor() {
-        FilesBaseModel(sequelize,Sequelize).sync().then((res) => {
+        FilesBaseModel(sequelize, Sequelize).sync().then((res) => {
             console.log(`FilesBaseModel 同步成功`, res);
         });
     }
@@ -33,7 +33,6 @@ module.exports = class {
      * @param {*} param0
      */
     async uploadFile({state, files}) {
-        console.log('+++++++++++++',files)
         const file = files.file; //文件
         if (!file) return resJson.fail({
             msg: `未发现上传文件!`
@@ -53,7 +52,7 @@ module.exports = class {
             const existsSync = await isDirExists(uploadPath, true); //判断文件夹是否存在,不存在就创建
             if (existsSync) { //确认成功之后再进行操作
                 const data = await this.__filePromise(file, uploadPath, state); //调用文件上传方法
-                await FilesBaseModel(sequelize,Sequelize).create(data); //保存文件到数据库
+                await FilesBaseModel(sequelize, Sequelize).create(data); //保存文件到数据库
                 return resJson.success({data: data});
             }
             return resJson.fail(`上传文件异常!`);
@@ -216,9 +215,9 @@ module.exports = class {
      * 获取文件列表
      * @param {*} param0
      */
-    async getFiles({ query}) {
+    async getFiles({query}) {
         // const {userId, isAdmin, roleName} = state;
-        const {keyword, isDelete, page, limit,userId} = query;
+        const {keyword, isDelete, page, limit, userId} = query;
         let queryData = {
             where: {userId, isDelete: false},
             order: [
@@ -247,7 +246,7 @@ module.exports = class {
         }
 
         try {
-            const {rows, count} = await FilesBaseModel(sequelize,Sequelize).findAndCountAll(queryData);
+            const {rows, count} = await FilesBaseModel(sequelize, Sequelize).findAndCountAll(queryData);
             const data = {
                 list: rows, total: count
             }
@@ -281,12 +280,13 @@ module.exports = class {
      * @param {*} param0
      */
     async readeFileContent({filePath}) {
+        // console.log('88888', filePath)
         // if (!filePath) return result.paramsLack();
         if (!filePath) return
         try {
-            const {code, data} = await readerFile(path.join(__dirname, '/public/uploads', filePath), 'utf-8');
+            const {code, data} = await readerFile(path.join(__dirname, '../public', filePath), 'utf-8');
             if (code == 200) {
-                return resJson.success({data: data});
+                return data
             }
             return resJson.fail({msg: '读取文件失败!'}); // return result.success(null, file);
         } catch (error) {
