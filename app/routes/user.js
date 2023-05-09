@@ -8,7 +8,7 @@ const mime = require("mime-types");
 const upload = new Upload()
 router.get('/users', User.selectAll);
 router.post('/register', User.addUser);
-// router.post('/upload',upload.uploadFile);
+router.post('/login',User.login);
 
 router.post('/upload', async(ctx) => {
     // console.log(ctx);

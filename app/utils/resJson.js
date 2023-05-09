@@ -13,7 +13,7 @@ const ResultJson = {
         return {
             data: params.data || null,
             msg: params.msg  || '操作失败',
-            code: 100,
+            code: params.code || 100,
             error_code: params.errorCode // 返回接口异常信息码
         }
     }

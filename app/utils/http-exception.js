@@ -24,7 +24,7 @@ class AuthFailed extends HttpException {
     constructor(msg, errorCode) {
         super()
         this.code = 401
-        this.mag = msg || '授权失败'
+        this.msg = msg || '授权失败'
         this.errorCode = errorCode || 10004
     }
 }

@@ -27,7 +27,7 @@ const Utils = {
         const date = new Date();
         const Y = date.getFullYear();
         const M = date.getMonth() + 1;
-        const D = date.getDay();
+        const D = date.getDate();
         return `${Y}${str}${M > 10 ? M : '0' + M}${str}${D > 10 ? D : '0' + D}`;
     },
 

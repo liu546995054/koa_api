@@ -15,12 +15,13 @@ const koajwt = require('koa-jwt')
 const statics = require("koa-static");
 const fs = require('fs')
 const mime = require('mime-types')
-global.errs = errors
+
 dotenv.config()
 
 const app = new Koa()
 const config = require('../config')
 global.config = config
+global.errs = errors
 // app.use(statics(__dirname + "static"));
 app.use(statics(__dirname + '/public'));
 app.use(catchError)
