@@ -10,11 +10,14 @@ const errors = require('./utils/http-exception')
 // 全局异常中间件监听、处理，放在所有中间件的最前面
 const catchError = require('./middleware/exception')
 const bodyParser = require("koa-bodyparser");
-const log4j = require('./utils/log4j')
+// const log4j = require('./utils/log4j')
+const logsUtil = require('./utils/log4Util')
 const koajwt = require('koa-jwt')
 const statics = require("koa-static");
 const fs = require('fs')
 const mime = require('mime-types')
+const {AuthFailed, NotFound} = require('./utils/http-exception')
+
 
 dotenv.config()
 
@@ -48,22 +51,44 @@ app.use(koaBody({
 //     ctx.body =  file;
 //
 // })
+// 错误处理
+app.use((ctx, next) => {
+    return next().catch((err) => {
+        console.log('errrrrrrrrrrrrr',err)
+        if (err.status === 401) {
+            throw new AuthFailed()
+            // ctx.status = 401;
+            // ctx.body = 'Protected resource, use Authorization header to get access\n';
+        } else if (err.status === 404) {
+            throw new NotFound()
+        } else {
+            throw err;
+        }
+    })
+})
+
 // 注意：放在路由前面
 app.use(koajwt({
     secret: 'Gopal_token'
 }).unless({ // 配置白名单
-    path: [/\/api\/register/, /\/api\/login/, /\/api\/readFile/]
+    path: [/\/api\/register/, /\/api\/login/]
 }))
 // logger  中间件
 app.use(async (ctx, next) => {
-    log4j.info(`get: ${JSON.stringify(ctx.request.query)}`)         // 监听get请求
-    log4j.info(`params: ${JSON.stringify(ctx.request.body)}`)       // 监听post请求
-    // log4j.error(`params: ${JSON.stringify(ctx.request.body)}`)       // 监听post请求
-    const start = new Date()
-    await next()
-    const ms = new Date() - start
-    console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
+    const start = new Date();					          // 响应开始时间
+    let intervals;								              // 响应间隔时间
+    try {
+        await next();
+        intervals = new Date() - start;
+        logsUtil.logResponse(ctx, intervals);	  //记录响应日志
+    } catch (error) {
+        intervals = new Date() - start;
+        logsUtil.logError(ctx, error, intervals);//记录异常日志
+    }
+
 })
+
+
 // app.on('error', (err, ctx) => {
 //     log4j.error(err)
 // })

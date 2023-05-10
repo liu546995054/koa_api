@@ -1,5 +1,4 @@
 // utils/resJson.js
-
 const ResultJson = {
     success: (params) => {
         return {

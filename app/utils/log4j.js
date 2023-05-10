@@ -1,75 +1,70 @@
-/**
- * 日志存储
- * @auther 何小玍。
- * @time 2021/07/28 22:11
- */
-const log4j = require('log4js')
-const levels = {
-    'trace'     : log4j.levels.TRACE,
-    'debug'     : log4j.levels.DEBUG,
-    'info'      : log4j.levels.INFO,
-    'warn'      : log4j.levels.WARN,
-    'error'     : log4j.levels.ERROR,
-    'fatal'     : log4j.levels.FATAL
-}
+var path = require('path');
 
-// log4j配置
-log4j.configure({
-    appenders: {
-        console: { type: 'console' },
-        info: {
-            type: 'file',
-            filename: 'logs/all-logs.log'
+//日志根目录
+var baseLogPath = path.resolve(__dirname, '../logs')
+
+/*报错输出日志*/
+//错误日志目录、文件名、输出完整路径
+var errorPath = "/error";
+var errorFileName = "error";
+var errorLogPath = baseLogPath + errorPath + "/" + errorFileName;
+
+/*请求数据得到响应时输出响应日志*/
+//响应日志目录、文件名、输出完整路径
+var responsePath = "/response";
+var responseFileName = "response";
+var responseLogPath = baseLogPath + responsePath + "/" + responseFileName;
+
+/*操作数据库进行增删改等敏感操作记录日志*/
+//操作日志目录、文件名、输出完整路径
+var handlePath = "/handle";
+var handleFileName = "handle";
+var handleLogPath = baseLogPath + handlePath + "/" + handleFileName;
+
+
+module.exports = {
+    //日志格式等设置
+    appenders:
+        {
+            "rule-console": {"type": "console"},
+            "errorLogger": {
+                "type": "dateFile",//日志类型
+                "filename": errorLogPath,//日志输出位置，当目录文件或文件夹不存在时自动创建
+                "pattern": "-yyyy-MM-dd.log",
+                "alwaysIncludePattern": true,
+                "encoding": "utf-8",
+                "maxLogSize": 104800,// 文件最大存储空间
+                "numBackups": 100,//当文件内容超过文件存储空间时，备份文件的数量
+                "path": errorPath
+            },
+            "resLogger": {
+                "type": "dateFile",
+                "filename": responseLogPath,
+                "pattern": "-yyyy-MM-dd.log",
+                "alwaysIncludePattern": true,
+                "encoding": "utf-8",
+                "maxLogSize": 104800,
+                "numBackups": 100,
+                "path": responsePath
+            },
+            "handleLogger": {
+                "type": "dateFile",
+                "filename": handleLogPath,
+                "pattern": "-yyyy-MM-dd.log",
+                "alwaysIncludePattern": true,
+                "encoding": "utf-8",
+                "maxLogSize": 104800,
+                "numBackups": 100,
+                "path": responsePath
+            },
         },
-        error: {
-            type: 'dateFile',
-            filename: 'logs/log',
-            pattern: 'yyyy-MM-dd.log',
-            alwaysIncludePattern: true      // 设置文件名称为 filename + pattern
-        }
-    },
+    //供外部调用的名称和对应设置定义
     categories: {
-        default: {
-            appenders: [ 'console' ],
-            level: 'debug'
-        },
-        info: {
-            appenders: [ 'info', 'console' ],
-            level: 'info'
-        },
-        error: {
-            appenders: [ 'error', 'console' ],
-            level: 'error'
-        }
-    }
-})
-
-/**
- * 日志输出 level为bug
- * @param { string } content
- */
-exports.debug = ( content ) => {
-    let logger = log4j.getLogger('debug')
-    logger.level = levels.debug
-    logger.debug(content)
-}
-
-/**
- * 日志输出 level为info
- * @param { string } content
- */
-exports.info = ( content ) => {
-    let logger = log4j.getLogger('info')
-    logger.level = levels.info
-    logger.info(content)
-}
-
-/**
- * 日志输出 level为error
- * @param { string } content
- */
-exports.error = ( content ) => {
-    let logger = log4j.getLogger('error')
-    logger.level = levels.error
-    logger.error(content)
+        "default": {"appenders": ["rule-console"], "level": "all"},
+        "resLogger": {"appenders": ["resLogger"], "level": "info"},
+        "errorLogger": {"appenders": ["errorLogger"], "level": "error"},
+        "handleLogger": {"appenders": ["handleLogger"], "level": "all"},
+        "http": {"appenders": ["resLogger"], "level": "info"}
+    },
+    "baseLogPath": baseLogPath
 }

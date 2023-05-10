@@ -22,8 +22,9 @@ const resJson = require('../utils/resJson')
 const Sequelize = require('sequelize')
 const sequelize = require('../db')
 module.exports = class {
+
     constructor() {
-        FilesBaseModel(sequelize, Sequelize).sync().then((res) => {
+        FilesBaseModel({sequelize:sequelize, dataTypes:Sequelize}).sync().then((res) => {
             console.log(`FilesBaseModel 同步成功`, res);
         });
     }
@@ -52,7 +53,7 @@ module.exports = class {
             const existsSync = await isDirExists(uploadPath, true); //判断文件夹是否存在,不存在就创建
             if (existsSync) { //确认成功之后再进行操作
                 const data = await this.__filePromise(file, uploadPath, state); //调用文件上传方法
-                await FilesBaseModel(sequelize, Sequelize).create(data); //保存文件到数据库
+                await FilesBaseModel({sequelize, dataTypes:Sequelize}).create(data); //保存文件到数据库
                 return resJson.success({data: data});
             }
             return resJson.fail(`上传文件异常!`);
@@ -89,7 +90,7 @@ module.exports = class {
                     return this.__filePromise(file, uploadPath, state.user.data);
                 }));
                 //保存文件到数据库
-                await FilesBaseModel.bulkCreate(saveFiles);
+                await FilesBaseModel({sequelize, dataTypes:Sequelize}).bulkCreate(saveFiles);
                 console.log(saveFiles);
                 // return result.success(null, saveFiles);
                 return resJson.success({data: saveFiles});
@@ -104,23 +105,27 @@ module.exports = class {
     /**
      * 异步上传文件
      * @param {*} file
+     * @param uploadPath
+     * @param userId
+     * @param userName
+     * @param remark
      */
-    __filePromise(file, uploadPath, {userId, userName}) {
+    __filePromise(file, uploadPath, {userId, userName,remark}) {
         return new Promise((resolve, reject) => { //异常上传,同步获取
             const md5sum = crypto.createHash('md5'); //创建文件指纹读取对象
-            const {originalFilename, size, mimetype} = file;
+            const {originalFilename, size, mimetype:type} = file;
             //创建数据库存储数据
             const data = {
                 userId, //上传者id
                 userName, //上传者名称
                 fileId: Date.now(),
                 size, //文件大小
-                mimetype, //文件类型
+                type, //文件类型
                 fileName: originalFilename, //获取原文件名
                 suffix: getExtname(originalFilename), //获取文件后缀名
                 path: null, //文件路径
                 aliasName: null, //文件别名
-                remark: null //源文件路径
+                remark //源文件路径
             };
             try {
                 console.log(`正在上传${originalFilename}`);
@@ -171,7 +176,7 @@ module.exports = class {
                 delete queryData.where['isDelete'];
             }
             //查询相关文件
-            const files = await FilesBaseModel.findAll(queryData);
+            const files = await FilesBaseModel({sequelize, dataTypes:Sequelize}).findAll(queryData);
             if (files && files.length) { //获取数据库里的文件数据
                 if (isAdmin && (roleName === '超级管理员')) { //只有超级管理员才能真正的删除文件,普通用户为软删除
                     const deleteFiles = files.map((file) => {
@@ -179,7 +184,7 @@ module.exports = class {
                             try {
                                 const res = await deleteFile(path.join(config.staticPath, file.path)); //上传成功后删除临时文件
                                 if (res && res.code == 200) {
-                                    await FilesBaseModel.destroy({where: {fileId: file.fileId}});
+                                    await FilesBaseModel({sequelize, dataTypes:Sequelize}).destroy({where: {fileId: file.fileId}});
                                     resolve(file);
                                 } else {
                                     reject(res);
@@ -196,7 +201,7 @@ module.exports = class {
                     return resJson.success({data: delData});
                 } else {
                     //批量软删除
-                    await FilesBaseModel.update({isDelete: true}, {where: {fileId: ids}});
+                    await FilesBaseModel({sequelize, dataTypes:Sequelize}).update({isDelete: true}, {where: {fileId: ids}});
                     // return result.success(null);
                     return resJson.success();
                 }
@@ -264,7 +269,7 @@ module.exports = class {
     async getFileById({fileId}) {
         if (!fileId) return
         try {
-            const file = await FilesBaseModel.findOne({
+            const file = await FilesBaseModel({sequelize, dataTypes:Sequelize}).findOne({
                 where: {fileId, isDelete: false},
                 attributes: ['fileId', 'path', 'fileName']
             });

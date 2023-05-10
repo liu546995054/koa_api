@@ -1,6 +1,10 @@
 const Sequelize = require('sequelize')
 const sequelize = require('../db')
 const validator = require('validator')
+const FilesBaseModel = require("./upload");
+// const {Upload} = FilesBaseModel().sync().then((res) => {
+//     console.log(`FilesBaseModel 同步成功`, res);
+// });
 
 const User = sequelize.define('user', {
         id: {
@@ -93,5 +97,7 @@ const User = sequelize.define('user', {
 User.sync({
     force: false,
 })
+
+
 
 module.exports = User

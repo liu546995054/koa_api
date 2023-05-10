@@ -5,97 +5,113 @@
  * 此模型仅限关系型数据库使用
  */
 // const { getTimeStampUUID } = require(':lib/Utils');
-module.exports = (sequelize, dataTypes) => {
-    return sequelize.define('FilesBase', {
+/**
+ * @param app
+ */
+const Sequelize = require('sequelize')
+const sequelize = require('../db')
+const User = require('../model/User.js')
+module.exports = app => {
+    // const sequelize = app.sequelize
+    // const dataTypes = app.dataTypes
+   const Upload =  sequelize.define('FilesBase', {
 
         //文件ID
         fileId: {
-            type: dataTypes.STRING(50),
+            type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true
         },
 
         //文件名
         fileName: {
-            type: dataTypes.STRING(100),
+            type: Sequelize.STRING(100),
             allowNull: true
         },
 
         //文件别名
         aliasName: {
-            type: dataTypes.STRING(100),
+            type: Sequelize.STRING(100),
             allowNull: true
         },
 
         //上传人ID
         userId: {
-            type: dataTypes.STRING(50),
+            type: Sequelize.STRING(50),
             allowNull: true
         },
 
         //上传人名称
         userName: {
-            type: dataTypes.STRING(100),
+            type: Sequelize.STRING(100),
             allowNull: true
         },
 
         //文件大小
         size: {
-            type: dataTypes.INTEGER(20),
+            type: Sequelize.INTEGER(20),
             allowNull: true
         },
 
         //文件类型
         type: {
-            type: dataTypes.STRING(100),
+            type: Sequelize.STRING(100),
             allowNull: true
         },
 
         //文件后缀
         suffix: {
-            type: dataTypes.STRING(30),
+            type: Sequelize.STRING(30),
             allowNull: true
         },
 
         //文件存放的路径
         path: {
-            type: dataTypes.STRING(200),
+            type: Sequelize.STRING(200),
             allowNull: true
         },
 
         //文件状态
         status: {
-            type: dataTypes.INTEGER(2),
+            type: Sequelize.INTEGER(2),
             allowNull: true
         },
 
         //备注
         remark: {
-            type: dataTypes.STRING(255),
+            type: Sequelize.STRING(255),
             allowNull: true
         },
 
         //是否删除 true是 false否
         isDelete: {
-            type: dataTypes.BOOLEAN(),
+            type: Sequelize.BOOLEAN(),
             allowNull: true,
             defaultValue: () => false
         },
 
         //创建时间
         createdTime: {
-            type: dataTypes.INTEGER(),
+            type: Sequelize.INTEGER(),
             allowNull: true,
             defaultValue: () => (Date.parse(new Date()) / 1000)
         },
 
         //修改时间
         updatedTime: {
-            type: dataTypes.INTEGER(),
+            type: Sequelize.INTEGER(),
             allowNull: true,
             defaultValue: () => (Date.parse(new Date()) / 1000)
         }
     }, {
         tableName: 'files_base'
     });
+
+    User.hasMany(Upload, {
+        foreignKey: 'userId',
+        // otherKey: 'users_id',
+    });
+    Upload.belongsTo(User);
+
+    return Upload
 };
