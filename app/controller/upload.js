@@ -24,7 +24,7 @@ const sequelize = require('../db')
 module.exports = class {
 
     constructor() {
-        FilesBaseModel({sequelize:sequelize, dataTypes:Sequelize}).sync().then((res) => {
+        FilesBaseModel(sequelize, Sequelize).sync().then((res) => {
             console.log(`FilesBaseModel 同步成功`, res);
         });
     }
@@ -53,7 +53,7 @@ module.exports = class {
             const existsSync = await isDirExists(uploadPath, true); //判断文件夹是否存在,不存在就创建
             if (existsSync) { //确认成功之后再进行操作
                 const data = await this.__filePromise(file, uploadPath, state); //调用文件上传方法
-                await FilesBaseModel({sequelize, dataTypes:Sequelize}).create(data); //保存文件到数据库
+                await FilesBaseModel(sequelize, Sequelize).create(data); //保存文件到数据库
                 return resJson.success({data: data});
             }
             return resJson.fail(`上传文件异常!`);
@@ -90,7 +90,7 @@ module.exports = class {
                     return this.__filePromise(file, uploadPath, state.user.data);
                 }));
                 //保存文件到数据库
-                await FilesBaseModel({sequelize, dataTypes:Sequelize}).bulkCreate(saveFiles);
+                await FilesBaseModel(sequelize, Sequelize).bulkCreate(saveFiles);
                 console.log(saveFiles);
                 // return result.success(null, saveFiles);
                 return resJson.success({data: saveFiles});
@@ -176,7 +176,7 @@ module.exports = class {
                 delete queryData.where['isDelete'];
             }
             //查询相关文件
-            const files = await FilesBaseModel({sequelize, dataTypes:Sequelize}).findAll(queryData);
+            const files = await FilesBaseModel(sequelize,Sequelize).findAll(queryData);
             if (files && files.length) { //获取数据库里的文件数据
                 if (isAdmin && (roleName === '超级管理员')) { //只有超级管理员才能真正的删除文件,普通用户为软删除
                     const deleteFiles = files.map((file) => {
@@ -184,7 +184,7 @@ module.exports = class {
                             try {
                                 const res = await deleteFile(path.join(config.staticPath, file.path)); //上传成功后删除临时文件
                                 if (res && res.code == 200) {
-                                    await FilesBaseModel({sequelize, dataTypes:Sequelize}).destroy({where: {fileId: file.fileId}});
+                                    await FilesBaseModel(sequelize,Sequelize).destroy({where: {fileId: file.fileId}});
                                     resolve(file);
                                 } else {
                                     reject(res);
@@ -201,7 +201,7 @@ module.exports = class {
                     return resJson.success({data: delData});
                 } else {
                     //批量软删除
-                    await FilesBaseModel({sequelize, dataTypes:Sequelize}).update({isDelete: true}, {where: {fileId: ids}});
+                    await FilesBaseModel(sequelize,Sequelize).update({isDelete: true}, {where: {fileId: ids}});
                     // return result.success(null);
                     return resJson.success();
                 }
@@ -269,7 +269,7 @@ module.exports = class {
     async getFileById({fileId}) {
         if (!fileId) return
         try {
-            const file = await FilesBaseModel({sequelize, dataTypes:Sequelize}).findOne({
+            const file = await FilesBaseModel(sequelize,Sequelize).findOne({
                 where: {fileId, isDelete: false},
                 attributes: ['fileId', 'path', 'fileName']
             });

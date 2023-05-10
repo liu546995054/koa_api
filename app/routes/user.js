@@ -2,14 +2,15 @@ const router = require('koa-router')({
     prefix: '/api'
 })
 // User控制器
-const User = require('../controller/user')
+const User = require('../controller/User')
 const Upload = require('../controller/upload')
 const mime = require("mime-types");
 const resJson = require("../utils/resJson");
 const upload = new Upload()
-router.get('/users', User.selectAll);
-router.post('/register', User.addUser);
-router.post('/login', User.login);
+const user = new User()
+router.get('/users', user.selectAll);
+router.post('/register', user.addUser);
+router.post('/login', user.login);
 
 router.post('/upload', async (ctx) => {
     // console.log(ctx);
@@ -33,7 +34,7 @@ router.post('/jwt', async (ctx) => {
 
     ctx.body = resJson.success({data: ctx.state.user})
 });
-router.get('/image', User.userImages);
+router.get('/image', user.userImages);
 
 
 module.exports = router;

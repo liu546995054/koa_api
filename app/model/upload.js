@@ -10,12 +10,9 @@
  */
 const Sequelize = require('sequelize')
 const sequelize = require('../db')
-const User = require('../model/User.js')
-module.exports = app => {
-    // const sequelize = app.sequelize
-    // const dataTypes = app.dataTypes
-   const Upload =  sequelize.define('FilesBase', {
-
+const User = require('../model/user.js')
+module.exports = (sequelize, Sequelize) => {
+    const Upload = sequelize.define('FilesBase', {
         //文件ID
         fileId: {
             type: Sequelize.STRING(50),
@@ -107,11 +104,9 @@ module.exports = app => {
         tableName: 'files_base'
     });
 
-    User.hasMany(Upload, {
-        foreignKey: 'userId',
-        // otherKey: 'users_id',
-    });
-    Upload.belongsTo(User);
+    // Upload.belongsTo(User(sequelize,Sequelize),{
+    //     foreignKey:'userId'
+    // })
 
     return Upload
 };
