@@ -54,7 +54,6 @@ app.use(koaBody({
 // 错误处理
 app.use((ctx, next) => {
     return next().catch((err) => {
-        console.log('errrrrrrrrrrrrr',err)
         if (err.status === 401) {
             throw new AuthFailed()
             // ctx.status = 401;

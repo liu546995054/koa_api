@@ -2,10 +2,7 @@ const Sequelize = require('sequelize')
 const sequelize = require('../db')
 const validator = require('validator')
 const Upload = require("../model/upload");
-console.log('PPPPPPPP',Upload instanceof Function)
-// const {Upload} = FilesBaseModel().sync().then((res) => {
-//     console.log(`FilesBaseModel 同步成功`, res);
-// });
+
 module.exports = (sequelize,Sequelize) => {
     const User = sequelize.define('user', {
             id: {

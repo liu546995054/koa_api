@@ -23,6 +23,17 @@ router.post('/upload', async (ctx) => {
     ctx.body = await upload.uploadFile({state: params, files: ctx.request.files});
 });
 
+router.post('/uploads', async (ctx) => {
+    // console.log(ctx);
+    // console.log(ctx.request.body);return
+    const params = {
+        userId: ctx.state.user.id,
+        userName: ctx.state.user.name,
+        ...ctx.request.body
+    }
+    ctx.body = await upload.uploadFiles({state: params, files: ctx.request.files});
+});
+
 //获取文件列表接口
 router.get('/getFiles', async (ctx) => {
     // console.log(ctx);

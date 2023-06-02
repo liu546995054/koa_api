@@ -68,7 +68,9 @@ module.exports = class {
      * @param {*} param0
      */
     async uploadFiles({state, files}) {
-        if (!files.file) return resJson.fail(`未发现上传文件!`);
+        if (!files.file) return resJson.fail({
+            msg: `未发现上传文件!`
+        });
         //兼容单文件上传
         const fileList = Array.isArray(files.file) ? files.file : [files.file];
         try {
@@ -87,7 +89,7 @@ module.exports = class {
             if (existsSync) { //确认成功之后再进行操作
                 //多文件上传
                 const saveFiles = await Promise.all(fileList.map((file) => {
-                    return this.__filePromise(file, uploadPath, state.user.data);
+                    return this.__filePromise(file, uploadPath, state);
                 }));
                 //保存文件到数据库
                 await FilesBaseModel(sequelize, Sequelize).bulkCreate(saveFiles);
@@ -110,10 +112,10 @@ module.exports = class {
      * @param userName
      * @param remark
      */
-    __filePromise(file, uploadPath, {userId, userName,remark}) {
+    __filePromise(file, uploadPath, {userId, userName, remark}) {
         return new Promise((resolve, reject) => { //异常上传,同步获取
             const md5sum = crypto.createHash('md5'); //创建文件指纹读取对象
-            const {originalFilename, size, mimetype:type} = file;
+            const {originalFilename, size, mimetype: type} = file;
             //创建数据库存储数据
             const data = {
                 userId, //上传者id
@@ -176,7 +178,7 @@ module.exports = class {
                 delete queryData.where['isDelete'];
             }
             //查询相关文件
-            const files = await FilesBaseModel(sequelize,Sequelize).findAll(queryData);
+            const files = await FilesBaseModel(sequelize, Sequelize).findAll(queryData);
             if (files && files.length) { //获取数据库里的文件数据
                 if (isAdmin && (roleName === '超级管理员')) { //只有超级管理员才能真正的删除文件,普通用户为软删除
                     const deleteFiles = files.map((file) => {
@@ -184,7 +186,7 @@ module.exports = class {
                             try {
                                 const res = await deleteFile(path.join(config.staticPath, file.path)); //上传成功后删除临时文件
                                 if (res && res.code == 200) {
-                                    await FilesBaseModel(sequelize,Sequelize).destroy({where: {fileId: file.fileId}});
+                                    await FilesBaseModel(sequelize, Sequelize).destroy({where: {fileId: file.fileId}});
                                     resolve(file);
                                 } else {
                                     reject(res);
@@ -201,7 +203,7 @@ module.exports = class {
                     return resJson.success({data: delData});
                 } else {
                     //批量软删除
-                    await FilesBaseModel(sequelize,Sequelize).update({isDelete: true}, {where: {fileId: ids}});
+                    await FilesBaseModel(sequelize, Sequelize).update({isDelete: true}, {where: {fileId: ids}});
                     // return result.success(null);
                     return resJson.success();
                 }
@@ -269,7 +271,7 @@ module.exports = class {
     async getFileById({fileId}) {
         if (!fileId) return
         try {
-            const file = await FilesBaseModel(sequelize,Sequelize).findOne({
+            const file = await FilesBaseModel(sequelize, Sequelize).findOne({
                 where: {fileId, isDelete: false},
                 attributes: ['fileId', 'path', 'fileName']
             });
