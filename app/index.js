@@ -70,7 +70,7 @@ app.use((ctx, next) => {
 app.use(koajwt({
     secret: 'Gopal_token'
 }).unless({ // 配置白名单
-    path: [/\/api\/register/, /\/api\/login/]
+    path: [/\/apis\/register/, /\/apis\/login/]
 }))
 // logger  中间件
 app.use(async (ctx, next) => {

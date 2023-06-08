@@ -1,5 +1,5 @@
 const router = require('koa-router')({
-    prefix: '/api'
+    prefix: '/apis'
 })
 // User控制器
 const User = require('../controller/User')
